@@ -32,7 +32,7 @@ def parse_rib_line(line):
     curr_prefix = line_arr[5]
     if is_subprefix(curr_prefix, des_prefix):
         path = line_arr[6].split()
-    return path
+    return path, curr_prefix
 
 def parse_update_line(line):
     is_withdrawal = False
@@ -54,15 +54,19 @@ def filter_data(dump_file, output_file):
 
 
 
-def make_graph(src_file, pkl_file, img_file):
+def make_graph(src_file, pkl_file, img_file, output_to_file=False):
     edges = []
     nodes = []
 
     f = open(src_file)
 
+    f2 = open('prefix_to_asn.txt', 'a')
+
     for line in f:
-        path = parse_rib_line(line)
+        path, prefix = parse_rib_line(line)
         if path:
+            if output_to_file:
+                f2.write(prefix + '\t' + path[-1] + '\n')
             for i in range(len(path) - 1):
                 n1 = path[i]
                 n2 = path[i+1]
@@ -72,6 +76,8 @@ def make_graph(src_file, pkl_file, img_file):
                 if n2 not in nodes:
                     nodes.append(n2)
 
+    f.close()
+    f2.close()
     my_graph = nx.Graph()
     my_graph.add_nodes_from(n for n in nodes)
     my_graph.add_edges_from((u, v) for u, v in edges)
@@ -87,6 +93,6 @@ def make_graph(src_file, pkl_file, img_file):
     plt.savefig(img_file)
     #plt.show()
 
-make_graph('filtered_rib_data.txt', 'graph_rib1.pickle', 'graph_rib1.png')
+make_graph('filtered_rib_data.txt', 'graph_rib1.pickle', 'graph_rib1.png', output_to_file=True)
 
 make_graph('filtered_rib_data2.txt', 'graph_rib2.pickle', 'graph_rib2.png')
