@@ -71,5 +71,3 @@ def make_diff_graph(pkl1, pkl2, img_file):
 
 graph_diff = make_diff_graph('graph_rib1.pickle', 'graph_rib2.pickle', 'graph_diff_test.png')
 
-
-def update_diff(curr_graph_pkl, update_file):
