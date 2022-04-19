@@ -1,6 +1,6 @@
 Route Changes: 36
 New Nodes: 4
   3491 BTN-ASN, US
+ 17557 PKTELECOM-AS-PK Pakistan Telecommunication Company Limited, 
   3216 SOVAM-AS, RU
   3213 BOGONS-ASN, GB
- 17557 PKTELECOM-AS-PK Pakistan Telecommunication Company Limited, 
