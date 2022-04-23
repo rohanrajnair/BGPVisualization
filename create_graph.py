@@ -99,6 +99,61 @@ def make_graph(src_file, pkl_file, img_file, output_to_file=False):
     plt.savefig(img_file)
     #plt.show()
 
-make_graph('filtered_rib_data.txt', 'graph_rib1.pickle', 'graph_rib1.png', output_to_file=True)
+#this is a copy of make_graph that uses arrays for a potential live implementation
+def make_live_graph(prefixToASNArray):
+    edges = []
+    nodes = []
 
-make_graph('filtered_rib_data2.txt', 'graph_rib2.pickle', 'graph_rib2.png')
+    f = open(src_file)
+
+    f2 = open('prefix_to_asn.txt', 'a')
+
+    f3 = open('path_list.txt', 'a')
+
+    for line in f:
+        path, prefix = parse_rib_line(line)
+        if path:
+            if output_to_file:
+                f2.write(prefix + '\t' + path[-1] + '\n')
+                for j in range(len(path)):
+                    f3.write(path[j])
+                    if j != len(path) - 1:
+                        f3.write(' ')
+                    else:
+                        f3.write('\n')
+
+            for i in range(len(path) - 1):
+                n1 = path[i]
+                n2 = path[i+1]
+                edges.append((n1, n2))
+                if n1 not in nodes:
+                    nodes.append(n1)
+                if n2 not in nodes:
+                    nodes.append(n2)
+
+    f.close()
+    f2.close()
+    f3.close()
+    my_graph = nx.Graph()
+    my_graph.add_nodes_from(n for n in nodes)
+    my_graph.add_edges_from((u, v) for u, v in edges)
+    with open(pkl_file, 'wb') as handle:
+        pickle.dump(my_graph, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    base_options = dict(with_labels=True, edgecolors="black", node_size=2000)
+    plt.figure(figsize=(40, 40))
+    plt.tight_layout()
+
+    node_colors = ["#A0CBE2" for i in range(len(nodes))]
+
+    # target ASN
+    for i in range(len(nodes)):
+        if nodes[i] == '36561':
+            node_colors[i] = '#FFFF00'
+
+    nx.draw_networkx(my_graph, node_color=node_colors, **base_options)
+    plt.savefig(img_file)
+
+
+make_graph('filteredOutput/filtered_rib_data.txt', 'graph_rib1.pickle', 'graphsAndVisuals/graph_rib1.png', output_to_file=True)
+
+make_graph('filteredOutput/filtered_rib_data2.txt', 'graph_rib2.pickle', 'graphsAndVisuals/graph_rib2.png')

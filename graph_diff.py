@@ -2,15 +2,17 @@ import pickle
 import ipaddress
 import networkx as nx
 import matplotlib.pyplot as plt
-
+#This File is calculating the difference between two graphs and drawing it
 des_prefix = "208.65.152.0/22"
 
+#4/21/2022 Changed filter_update_data to also take a command line parameter that looks at AS's of interest
 def filter_update_data(dump_file, output_file):
     # dumping contents of rib/update file
     # bashCommand = "python3 mrt2bgpdump.py " + src_file + " -m > " + dump_file
     # output = subprocess.check_output(['bash', '-c', bashCommand])
 
     # further filtering by ASNs (YouTube and Pakistan Telecom)
+    #TODO add functionality to check AS's of interest via command line params, if 0, then ignore?
     bashCommand = "grep \"36561\|17557\|W\" " + dump_file + " > " + output_file
     output = subprocess.check_output(['bash', '-c', bashCommand])
 
