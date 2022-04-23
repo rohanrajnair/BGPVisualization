@@ -8,7 +8,7 @@ def main(argv):
     fileName = date.today() + time.time() + argv[4]+".txt"
     tidyData =[]
     # TO DO
-    """ filter to only include announcements?
+    """ Fiji: filter to only include announcements?
     argv[0] is python filename
     argv[1] is live or upload use: "-l" or "-u"
     argv[2] is whether or not they want the data output to a file as well use : "-f" or "-nf"

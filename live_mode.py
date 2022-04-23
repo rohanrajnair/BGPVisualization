@@ -13,7 +13,7 @@ import time
 streamFilter = ""
 streamBuffer = []
 """
-My current idea is to use this function to clean up the data to a form that can be used for create_graph in
+Fiji: My current idea is to use this function to clean up the data to a form that can be used for create_graph in
 a way that won't require us to use files.
 So the purpose of this function is to take the data obtained from ris, as well as a boolean that indicates
 if the user wants to output the raw data to a file for later. Then take that raw data and convert it to something like
