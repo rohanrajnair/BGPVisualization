@@ -36,8 +36,9 @@ def main(argv):
             curTime = time.time()
             if (curTime-firstCall >= updateFrequency):#after X length of time, send the data to be parsed, then continue reading.
                 if(makeFile is True):
-                    live_mode.getDataAndParse(res, makeFile, fileName)
-
+                    live_mode.getDataAndConvert(res, makeFile, fileName)
+                #Need to make use of the "lastINdex" and "beforeClear" variables, sliding window isn't really implemented
+                #yet.
                 tidyData = live_mode.getDataAndConvert(res,makeFile,"noFile") #convert the data
                 firstCall = curTime #update the time interval
                 break

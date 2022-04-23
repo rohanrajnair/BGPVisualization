@@ -32,7 +32,7 @@ def filter_update_file(update_file, output_file):
 #live data is longer and has the relevant information further ahead
 #this may only be relevant if the user chooses a specific prefix
 
-#TODO THIS IS NOT DONE FIJI
+#TODO THIS IS NOT DONE FIJI,note to self this is what should take the converted data and check for subprfixes.
 def live_filter_data(update_file, output_file):
     f = open(update_file)
     f2 = open(output_file, 'a')  # open an update file and output file, split based on the |,
