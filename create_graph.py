@@ -26,11 +26,11 @@ def is_subprefix(prefix1, prefix2):
         return True
     return False
 
-def parse_rib_line(line):
+def parse_rib_line(line): #maybe set a flag if the user specifies a particular prefix?
     path = []
     line_arr = line.split("|")
     curr_prefix = line_arr[5]
-    if is_subprefix(curr_prefix, des_prefix):
+    if is_subprefix(curr_prefix, des_prefix): #if flag true do this? otherwise just get the path and prefix
         path = line_arr[6].split()
     return path, curr_prefix
 
@@ -67,7 +67,7 @@ def make_graph(src_file, pkl_file, img_file, output_to_file=False):
                     else:
                         f3.write('\n')
 
-            for i in range(len(path) - 1):
+            for i in range(len(path) - 1): #if a destination isn't specified, graph could get weird?
                 n1 = path[i]
                 n2 = path[i+1]
                 edges.append((n1, n2))
@@ -100,11 +100,11 @@ def make_graph(src_file, pkl_file, img_file, output_to_file=False):
     #plt.show()
 
 #this is a copy of make_graph that uses arrays for a potential live implementation
-def make_live_graph(prefixToASNArray):
+def make_live_graph(prefixToASNArray,pkl_file, img_file, output_to_file=False):
     edges = []
     nodes = []
 
-    f = open(src_file)
+    f = prefixToASNArray
 
     f2 = open('prefix_to_asn.txt', 'a')
 

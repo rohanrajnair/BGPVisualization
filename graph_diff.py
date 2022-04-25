@@ -29,7 +29,7 @@ def is_subprefix(prefix1, prefix2):
     return False
 
 
-def parse_update_line(line):
+def parse_update_line(line): #may have to change this to change the des_prfix dynamically based on the prefixes in the array.
     is_withdrawal = False
     valid_flag = True
     path = []
