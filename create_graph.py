@@ -98,6 +98,8 @@ def make_graph(src_file, pkl_file, img_file, output_to_file=False):
     nx.draw_networkx(my_graph, node_color=node_colors, **base_options)
     plt.savefig(img_file)
     #plt.show()
+    #make this return the list of graph names
+    return
 
 #this is a copy of make_graph that uses arrays for a potential live implementation
 def make_live_graph(prefixToASNArray,pkl_file, img_file, output_to_file=False):
@@ -153,7 +155,7 @@ def make_live_graph(prefixToASNArray,pkl_file, img_file, output_to_file=False):
     nx.draw_networkx(my_graph, node_color=node_colors, **base_options)
     plt.savefig(img_file)
 
-
+#always make graph_rib1 and 2 pickle and graph 1 and 2 png. keep array though
 make_graph('filteredOutput/filtered_rib_data.txt', 'graph_rib1.pickle', 'graphsAndVisuals/graph_rib1.png', output_to_file=True)
 
 make_graph('filteredOutput/filtered_rib_data2.txt', 'graph_rib2.pickle', 'graphsAndVisuals/graph_rib2.png')

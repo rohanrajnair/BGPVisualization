@@ -33,7 +33,8 @@ def filter_update_file(update_file, output_file):
 #this may only be relevant if the user chooses a specific prefix
 
 #TODO THIS IS NOT DONE FIJI,note to self this is what should take the converted data and check for subprfixes.
-def live_filter_data(update_file, output_file):
+def live_filter_data(update_file, output_file, userPrefix): #should return filtered array
+    des_prefix = userPrefix
     f = open(update_file)
     f2 = open(output_file, 'a')  # open an update file and output file, split based on the |,
     for line in f:  # for every IP address, write it to the output file if its destination
