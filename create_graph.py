@@ -9,7 +9,7 @@ import subprocess
 
 # prefix of interest for 2008 BGP hijacking attack
 des_prefix = "208.65.152.0/22"
-
+#call something from another file
 class table_entry:
   def __init__(self, asn, ip, path):
     self.asn = asn
@@ -133,7 +133,7 @@ def make_live_graph(prefixToASNArray,pkl_file, img_file, output_to_file=False):
                 if n2 not in nodes:
                     nodes.append(n2)
 
-    f.close()
+    #f.close()
     f2.close()
     f3.close()
     my_graph = nx.Graph()
@@ -156,6 +156,6 @@ def make_live_graph(prefixToASNArray,pkl_file, img_file, output_to_file=False):
     plt.savefig(img_file)
 
 #always make graph_rib1 and 2 pickle and graph 1 and 2 png. keep array though
-make_graph('filteredOutput/filtered_rib_data.txt', 'graph_rib1.pickle', 'graphsAndVisuals/graph_rib1.png', output_to_file=True)
+#make_graph('filteredOutput/filtered_rib_data.txt', 'graph_rib1.pickle', 'graphsAndVisuals/graph_rib1.png', output_to_file=True)
 
-make_graph('filteredOutput/filtered_rib_data2.txt', 'graph_rib2.pickle', 'graphsAndVisuals/graph_rib2.png')
+#make_graph('filteredOutput/filtered_rib_data2.txt', 'graph_rib2.pickle', 'graphsAndVisuals/graph_rib2.png')

@@ -1,5 +1,5 @@
 from datetime import date
-import time
+import time,json
 
 
 #read that stream into a file
@@ -38,21 +38,45 @@ def getDataAndConvert(userStream,putInFile,fileName):
         for i in range(len(userStream)):
             fileDesc.write(userStream[i])
         fileDesc.close()
+
     #use this to convert to something like Rohan's filtered format
     for item in userStream:
         #this checks if the "community" tag exists and converts it to the bgpduimp format
-        if(item['community']):
+        item = item["data"]
+        keys = item.keys()
+        pathString = ""
+        values = item.values()
+        if('timestamp' in keys):
+            tStamp = item['timestamp']
+        if('peer'in keys):
+            peer = str(item["peer"])
+        else:
+            peer = " "
+        if ('peer_asn' in keys):
+            peerAS = str(item["peer_asn"])
+        else:
+            peerAS = " "
+        if('community' in keys):
             for link in item['community']:
-                communityString = communityString + link[0]+":"+link[1] + " "
-        communityString.strip()
+                communityString = communityString + str(link[0])+":"+str(link[1]) + " "
+        communityString = communityString.strip()
+        if('path' in keys):
+            for path in item['path']:
+                pathString = pathString +str(path) + " "
+        pathString = pathString.strip()
+
         # added this to ignore IPv6 addresses
-        if(":" in item['peer']):
-            continue
+
+        if('peer'in keys):
+            if(":" in item['peer']):
+                continue
         #turns announcements to BGP format
-        if(item['announcements']):
-            dataString = "BGP4MP|" + item['timestamp'] + "|A|" +item["peer"]+"|" + item['peer_asn']+"|"+item['announcements']['prefixes'],\
-            + "|" + item['path'] + "|"+item["origin"]+"|"+item['announcements']['next_hop']+"|0|0|"+ communityString + "|NAG|"+"||"
-        if(item['withdrawals']):#not complete yet
-            dataString = "BGP4MP|" + item['timestamp'] + "|"
+        if ('announcements' in keys):
+            newItem = item["announcements"]
+            firstPrefix = newItem[0]['prefixes'][0]
+            dataString = "BGP4MP|" + str(tStamp) + "|A|" +peer+"|" + peerAS+"|"+firstPrefix + "|" + pathString + "|"+\
+                         str(item["origin"])+"|"+str(newItem[0]['next_hop'])+"|0|0|"+ communityString + "|NAG|"+"||"
+        if('withdrawals' in keys):#not complete yet
+                dataString = "BGP4MP|" + str(tStamp) + "|"
         convertedData.append(dataString)
     return convertedData
