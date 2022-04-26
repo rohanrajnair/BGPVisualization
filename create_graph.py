@@ -9,7 +9,8 @@ import subprocess
 
 # prefix of interest for 2008 BGP hijacking attack
 des_prefix = "208.65.152.0/22"
-#call something from another file
+#des_prefix = str(rislive2.getDestPrefix())
+
 class table_entry:
   def __init__(self, asn, ip, path):
     self.asn = asn
@@ -32,6 +33,14 @@ def parse_rib_line(line): #maybe set a flag if the user specifies a particular p
     curr_prefix = line_arr[5]
     if is_subprefix(curr_prefix, des_prefix): #if flag true do this? otherwise just get the path and prefix
         path = line_arr[6].split()
+    return path, curr_prefix
+
+def parse_live_rib_line(line):
+    path = []
+    line_arr = line.split("|")
+    curr_prefix = line_arr[5]
+    # if is_subprefix(curr_prefix, des_prefix):
+    path = line_arr[6].split()
     return path, curr_prefix
 
 def filter_data(dump_file, output_file):
@@ -67,7 +76,7 @@ def make_graph(src_file, pkl_file, img_file, output_to_file=False):
                     else:
                         f3.write('\n')
 
-            for i in range(len(path) - 1): #if a destination isn't specified, graph could get weird?
+            for i in range(len(path) - 1):
                 n1 = path[i]
                 n2 = path[i+1]
                 edges.append((n1, n2))
@@ -99,7 +108,6 @@ def make_graph(src_file, pkl_file, img_file, output_to_file=False):
     plt.savefig(img_file)
     #plt.show()
     #make this return the list of graph names
-    return
 
 #this is a copy of make_graph that uses arrays for a potential live implementation
 def make_live_graph(prefixToASNArray,pkl_file, img_file, output_to_file=False):
@@ -113,7 +121,7 @@ def make_live_graph(prefixToASNArray,pkl_file, img_file, output_to_file=False):
     f3 = open('path_list.txt', 'a')
 
     for line in f:
-        path, prefix = parse_rib_line(line)
+        path, prefix = parse_live_rib_line(line) #doesnt account for specific prefixes rn
         if path:
             if output_to_file:
                 f2.write(prefix + '\t' + path[-1] + '\n')

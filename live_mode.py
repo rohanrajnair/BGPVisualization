@@ -76,7 +76,10 @@ def getDataAndConvert(userStream,putInFile,fileName):
             firstPrefix = newItem[0]['prefixes'][0]
             dataString = "BGP4MP|" + str(tStamp) + "|A|" +peer+"|" + peerAS+"|"+firstPrefix + "|" + pathString + "|"+\
                          str(item["origin"])+"|"+str(newItem[0]['next_hop'])+"|0|0|"+ communityString + "|NAG|"+"||"
-        if('withdrawals' in keys):#not complete yet
-                dataString = "BGP4MP|" + str(tStamp) + "|"
+        if('withdrawals' in keys):
+            newItem = item["announcements"]
+            firstPrefix = newItem[0]['prefixes'][0] #grabs the first prefix in the array of prefixes for now
+            dataString = "BGP4MP|" + str(tStamp) + "|W|"+peer+"|"+peerAS+"|"+firstPrefix+ "|" + pathString + "|"+ \
+            str(item["origin"]) + "|" + str(newItem[0]['next_hop']) + "|0|0|" + communityString + "|NAG|" + "||"
         convertedData.append(dataString)
     return convertedData
