@@ -106,8 +106,12 @@ def make_graph(src_file, pkl_file, img_file, output_to_file=False):
 
     nx.draw_networkx(my_graph, node_color=node_colors, **base_options)
     plt.savefig(img_file)
+    node_colors.clear()
+    edges.clear()
+    nodes.clear()
     #plt.show()
     #make this return the list of graph names
+    return None
 
 #this is a copy of make_graph that uses arrays for a potential live implementation
 def make_live_graph(prefixToASNArray,pkl_file, img_file, output_to_file=False):
@@ -162,7 +166,11 @@ def make_live_graph(prefixToASNArray,pkl_file, img_file, output_to_file=False):
 
     nx.draw_networkx(my_graph, node_color=node_colors, **base_options)
     plt.savefig(img_file)
-
+    node_colors.clear() #clearing to hopefully help RAM use
+    edges.clear()
+    nodes.clear()
+    prefixToASNArray.clear()
+    return None
 #always make graph_rib1 and 2 pickle and graph 1 and 2 png. keep array though
 #make_graph('filteredOutput/filtered_rib_data.txt', 'graph_rib1.pickle', 'graphsAndVisuals/graph_rib1.png', output_to_file=True)
 

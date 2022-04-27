@@ -4,7 +4,7 @@ import os
 import websocket,live_mode,time,create_graph,graph_diff
 from datetime import date
 
-def main(argv): #this will have to be a function that takes in params passed from main when the whole thing is put together
+def goLive(argv): #this will have to be a function that takes in params passed from main when the whole thing is put together
     ws = websocket.WebSocket() #Added by adriel, create websocket to connect to RISlive
     websocket.WebSocket()
     fileName = str(date.today()) + str(time.time()) + str(argv[4])+".txt" #trying to do dynamic file creation if user wants
@@ -47,44 +47,50 @@ def main(argv): #this will have to be a function that takes in params passed fro
     #0 to size, oldsize=size, oldsize to size
     execNumber = 0 #if exec num is zero, file names are some val, if exec num is one file names are other val
     makeintoFile = False
-    if(argv[1]=="-l"or"-L"): #if live mode
-        if((fileOption == "-f")or(fileOption=="-F")): #check if output to file is desired
-            makeintoFile = True #set flag if yest
-        ws.connect("wss://ris-live.ripe.net/v1/ws/?client=py-manual-example")
-        ws.send(json.dumps({"type": "ris_subscribe", "data": {"host": "rrc21", "path": userPath}}))
-        res = []
-        updateFrequency = argv[3] #give the update freq
+     #if live mode
+    if((fileOption == "-f")or(fileOption=="-F")): #check if output to file is desired
+        makeintoFile = True #set flag if yest
+    ws.connect("wss://ris-live.ripe.net/v1/ws/?client=py-manual-example")
+    ws.send(json.dumps({"type": "ris_subscribe", "data": {"host": "rrc21", "path": userPath}}))
+    res = []
+    updateFrequency = argv[3] #give the update freq
 
         #updateFrequency is in seconds, if more than an hour, default to 1 minute
-        if (updateFrequency > 3600):
-            updateFrequency = 60
+    if (updateFrequency > 3600):
+        updateFrequency = 60
         #num_messages = 200
-        firstCall = time.time() #set time marker
-        oldIndex = 0 #to help implement "sliding window", I need to add a clear function to make sure the array
+    firstCall = time.time() #set time marker
+    oldIndex = 0 #to help implement "sliding window", I need to add a clear function to make sure the array
         #doesn't get too large since the data we're getting is constantly flowing
-        for data in ws: #added by Adriel, connects stuff and adds to an array
-            parsed = json.loads(data)
-            res.append(parsed)
+    for data in ws: #added by Adriel, connects stuff and adds to an array
+        parsed = json.loads(data)
+        res.append(parsed)
+        print("Len is" + str(len(res)))
             #num_messages -=1
             #take note of the array size
-            newIndex = len(res)-oldIndex
-            if ((graphInitialized == False) and (firstCall>0)):  # make the first graph to display to the user, will
+        newIndex = len(res)-oldIndex
+        if ((graphInitialized == False) and (firstCall>0)):  # make the first graph to display to the user, will
                 #probably only be one node ?
-                create_graph.make_live_graph(live_mode.getDataAndConvert(res, makeintoFile, fileName), liveGraphPickleOne,
-                                             liveGraphImgOne,
-                                             output_to_file=True)  # use makelivegraph bc functions are using arrays now
-                graphInitialized = True
-            curTime = time.time()
-            if(curTime-firstCall >= updateFrequency): #if the desired update time has passed, start update process
-                if(calledOnce==False): #if first update, do this
-                    newres = res[oldIndex:newIndex]
-                    calledOnce = True
+            create_graph.make_live_graph(live_mode.getDataAndConvert(res, makeintoFile, fileName), liveGraphPickleOne,liveGraphImgOne,output_to_file=True)  # use makelivegraph bc functions are using arrays now
+            graphInitialized = True
+        curTime = time.time()
+        if(curTime-firstCall >= updateFrequency): #if the desired update time has passed, start update process
+            if(calledOnce==False): #if first update, do this
+                newres = res[oldIndex:newIndex]
+                calledOnce = True
                 #don't pass in res, pass in a range of res
-                else: #if any other update, do this
-                    newres = res[oldIndex:len(res)]
-                execNumber = updateGraph(graphInitialized,execNumber,makeintoFile,newres,fileName) #call update graph
-                firstCall = curTime #reset time window
-                oldIndex = newIndex #need to make a clear function
+            else: #if any other update, do this
+                newres = res[oldIndex:len(res)]
+            execNumber = updateGraph(graphInitialized,execNumber,makeintoFile,newres,fileName) #call update graph
+            if (len(res) > 40): #added to erase old and un-needed data from res
+                del res[0:oldIndex] # newIndex-numpopped
+                oldIndex = newIndex-oldIndex
+            else:
+                oldIndex = newIndex
+            print(len(res))
+            firstCall = curTime #reset time window
+             #need to make a clear function
+
 #calledOnce goes with graphInitialized,execNum goes with execNumber, makeFile and makeInto file, resourceArr with res, mycleanData = tidyData
 def updateGraph(calledOnce,execNum,makeFile,resourceArr,myfileName):#add params for before and after index
 #subsequent graphs are done when user wants update
@@ -149,7 +155,7 @@ def setDestPrefix(userPrefix): #sets user specified destination prefix
     return globalPre
 def getDestPrefix(): #gets user specified destination prefix
     return globalDest
-main([0,"-l","-nf",2,0,'208.65.152.0/22','3356'])
+
 
 #TODO you can ignore this stuff here
 #argv[0] is python filename

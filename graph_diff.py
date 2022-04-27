@@ -62,7 +62,6 @@ def live_parse_update_line(line): #this version doesn't check for specific prefi
     if entry_type == 'W':
         is_withdrawal = True
 
-
     return valid_flag, path, asn, is_withdrawal, curr_prefix
 
 def create_prefix_asn_mapping(filename):
@@ -99,7 +98,7 @@ def report_stats(edge_diff, node_diff):
     for i in node_diff:
         f.write(asn_to_owner_list[int(i) - 1] + '\n')
     f.close()
-
+    return None
 
 # diff between two rib files
 def make_diff_graph(pkl1, pkl2, img_file): #prefix to asn should be kept constant?
@@ -151,6 +150,9 @@ def make_diff_graph(pkl1, pkl2, img_file): #prefix to asn should be kept constan
 
     nx.draw_networkx(graph_diff, node_color=node_colors, edge_color=edge_colors, **base_options)
     plt.savefig(img_file)
+    edge_styles.clear()
+    edge_colors.clear()
+    node_colors.clear()
     return graph_diff
 
 #takes pickle made from graph creation
@@ -184,16 +186,19 @@ def make_diff_udpate_graph(rib_pkl, update_file, path_file, img_file, output_pkl
         valid_flag, path, asn, is_withdrawal, curr_prefix = parse_update_line(line)
         if valid_flag:
             if is_withdrawal:
-                print('FOUND WITHDRAWAL ANNOUNCEMENT')
-                target_asn = asn_prefix_map[curr_prefix][0]
-                for p in paths:
-                    if p[0] == asn and p[-1] == target_asn:
-                        print('FOUND PATH')
-                        for i in range(len(p) - 1):
-                            n1 = p[i]
-                            n2 = p[i + 1]
-                            deleted_edges.append((n1, n2))
-                            print('APPENDED EDGE TO DELETED')
+                try:
+                    print('FOUND WITHDRAWAL ANNOUNCEMENT')
+                    target_asn = asn_prefix_map[curr_prefix][0]
+                    for p in paths:
+                        if p[0] == asn and p[-1] == target_asn:
+                            print('FOUND PATH')
+                            for i in range(len(p) - 1):
+                                n1 = p[i]
+                                n2 = p[i + 1]
+                                deleted_edges.append((n1, n2))
+                                print('APPENDED EDGE TO DELETED')
+                except:
+                    print("key error")
             else:
                 for j in range(len(path)):
                     f2.write(path[j])
@@ -262,6 +267,12 @@ def make_diff_udpate_graph(rib_pkl, update_file, path_file, img_file, output_pkl
     f.close()
     f2.close()
     f3.close()
+    plt.savefig(img_file)
+    edge_styles.clear()
+    edge_colors.clear()
+    node_colors.clear()
+    nodes.clear()
+    edges.clear()
     return graph_diff
 
 #This is the same as its static variant, just copied over and changed in case modification is required
@@ -304,12 +315,12 @@ def live_make_diff_udpate_graph(rib_pkl, updateArray, path_file, img_file, outpu
                 target_asn = asn_prefix_map[curr_prefix][0]
                 for p in paths:
                     if p[0] == asn and p[-1] == target_asn:
-                        print('FOUND PATH')
+                        #print('FOUND PATH')
                         for i in range(len(p) - 1):
                             n1 = p[i]
                             n2 = p[i + 1]
                             deleted_edges.append((n1, n2))
-                            print('APPENDED EDGE TO DELETED')
+                            #print('APPENDED EDGE TO DELETED')
             else:
                 for j in range(len(path)):
                     f2.write(path[j])
@@ -377,6 +388,12 @@ def live_make_diff_udpate_graph(rib_pkl, updateArray, path_file, img_file, outpu
     plt.savefig(img_file)
     f2.close()
     f3.close()
+    edge_styles.clear()
+    edge_colors.clear()
+    node_colors.clear()
+    nodes.clear()
+    edges.clear()
+    updateArray.clear()
     return graph_diff
 
 
@@ -430,5 +447,8 @@ def live_make_diff_graph(pkl1, pkl2, img_file): #prefix to asn should be kept co
 
     nx.draw_networkx(graph_diff, node_color=node_colors, edge_color=edge_colors, **base_options)
     plt.savefig(img_file)
+    edge_styles.clear()
+    edge_colors.clear()
+    node_colors.clear()
     return graph_diff
 

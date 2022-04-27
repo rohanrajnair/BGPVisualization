@@ -1,5 +1,5 @@
-import create_graph,filtering,graph_diff,animation,live_mode
 import sys
+import rislive2
 #create workflow for all files
 #add command line arg that does live monitoring or takes files based on what user wants
 
@@ -23,5 +23,10 @@ import sys
 #0 is filename
 #1 is live or upload
 def main(argv):
+    print("hello")
     #if user chooses liveMode, run liveMode script
-    if (sys.argv[1]=="-l"):
+    if((argv[1]=="-l")or(argv[1]=="-L")):
+        rislive2.goLive(argv)
+    if((argv[1]=="-u")or(argv[1]=="-U")):  #if this happens, we let the user upload a file, maybe implement later
+        pass
+main([0, "-l", "-nf", 2, 0, '208.65.152.0/22', '3356'])
