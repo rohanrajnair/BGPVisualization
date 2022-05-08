@@ -19,21 +19,44 @@
   <body>
     <div id="cy"></div>
     <script>
+      function choose(choices) {
+        var index = Math.floor(Math.random() * choices.length);
+        return choices[index];
+      }
       var cy = cytoscape({
         container: document.getElementById("cy"),
-        elements: [
-          { data: { id: "a" } },
-          { data: { id: "b" } },
-          { data: { id: "c" } },
+        elements: [{ data: { id: "a", color: "#87BBEC" } }],
+        style: [
           {
-            data: {
-              id: "ab",
-              source: "a",
-              target: "b",
+            selector: "node",
+            style: {
+              // shape: "circle",
+              "background-color": "data(color)",
+              label: "data(id)",
             },
           },
         ],
       });
+
+      for (var i = 0; i < 10; i++) {
+        cy.add({
+          data: {
+            id: "node" + i,
+            color: choose(["#808080", "#FF0000", "#008000", "#FF69B4"]),
+          },
+        });
+        var source = "node" + i;
+        cy.add({
+          data: {
+            id: "edge" + i,
+            source: source,
+            target: "a",
+          },
+        });
+      }
+      var layout = cy.elements().layout({ name: "cose", animate: true });
+      layout.run();
     </script>
+    <h1>BGP Data Visualization</h1>
   </body>
 </html>
