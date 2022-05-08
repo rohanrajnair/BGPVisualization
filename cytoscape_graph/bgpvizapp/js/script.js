@@ -50,27 +50,25 @@ function addNode(cy, node_data) {
     // var layout = cy.elements().layout({ name: "circle", animate: true });
     // layout.run();
   }
-</script>
-<script>
-  function choose(choices) {
+
+function choose(choices) {
     var index = Math.floor(Math.random() * choices.length);
     return choices[index];
-  }
-  var cy = cytoscape({
+}
+var cy = cytoscape({
     container: document.getElementById("cy"),
     elements: [],
     style: [
-      {
-        selector: "node",
-        style: {
-          // shape: "circle",
-          "background-color": "data(color)",
-          label: "data(id)",
+        {
+            selector: "node",
+            style: {
+                // shape: "circle",
+                "background-color": "data(color)",
+                label: "data(id)",
+            },
         },
-      },
     ],
-  });
-</script>
+});
 
 for (var i = 0; i < 10; i++) {
     cy.add({
