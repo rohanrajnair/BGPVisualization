@@ -1,0 +1,33 @@
+const express = require("express");
+const path = require("path");
+var cytoscape = require("cytoscape");
+
+const app = express();
+const port = 3000;
+
+app.use(express.static("public"));
+app.get("/", (req, res) => {
+  var cy = cytoscape({
+    container: document.getElementById("cy"),
+    elements: [
+      { data: { id: "a" } },
+      { data: { id: "b" } },
+      { data: { id: "c" } },
+      {
+        data: {
+          id: "ab",
+          source: "a",
+          target: "b",
+        },
+      },
+    ],
+  });
+  res.sendFile(path.join(__dirname, "/index.html"));
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port http://127.0.0.1:${port}`);
+});
+
+//Every once in a while, this express server will fetch data from the API
+//This api data will be pass into the index.html..
