@@ -20,16 +20,19 @@
     ws.onmessage = function (event) {
       var message = JSON.parse(event.data);
       var data = message.data;
-      console.log("type:" + data.type);
-      console.log("withdrawals:" + data.withdrawals);
+      // console.log("type:" + data.type);
+      // console.log("withdrawals:" + data.withdrawals);
       if (data.path) {
         addNode(cy, data);
       }
-      if (msg_counter % 1 == 0) {
-        var layout = cy.elements().layout({ name: "cose", animate: false });
+      if (msg_counter % 500 == 0) {
+        var layout = cy.elements().layout({ name: "cose", animate: true });
         layout.run();
       }
       msg_counter++;
+      document.getElementById(
+        "msg_count"
+      ).innerHTML = `Message count: ${msg_counter}`;
       // console.log(message.type, message.data);
     };
     ws.onopen = function () {
@@ -110,5 +113,6 @@
       });
     </script>
     <h1>BGP Data Visualization</h1>
+    <h2 id="msg_count"></h2>
   </body>
 </html>
