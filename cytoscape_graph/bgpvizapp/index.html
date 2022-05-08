@@ -2,7 +2,7 @@
 
 <html>
   <head>
-    <title>Tutorial 1: Getting Started</title>
+    <title>BGP Graph Visualizer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.21.1/cytoscape.min.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
     <script src="/popper.js"></script>
@@ -10,7 +10,42 @@
     <script src="https://unpkg.com/tippy.js@6"></script>
     
   </head>
-
+  <script>
+    var ws = new WebSocket(
+      "wss://ris-live.ripe.net/v1/ws/" //?client=js-example-1"
+    );
+    var params = {
+      moreSpecific: true,
+      host: "rrc21",
+      socketOptions: {
+        includeRaw: true,
+      },
+    };
+    var msg_counter = 0;
+    ws.onmessage = function (event) {
+      var message = JSON.parse(event.data);
+      var data = message.data;
+      console.log("type:" + data.type);
+      console.log("withdrawals:" + data.withdrawals);
+      if (data.path) {
+        addNode(cy, data);
+      }
+      if (msg_counter % 1 == 0) {
+        var layout = cy.elements().layout({ name: "cose", animate: false });
+        layout.run();
+      }
+      msg_counter++;
+      // console.log(message.type, message.data);
+    };
+    ws.onopen = function () {
+      ws.send(
+        JSON.stringify({
+          type: "ris_subscribe",
+          data: params,
+        })
+      );
+    };
+  </script>
   <style>
     #cy {
       width: 100%;

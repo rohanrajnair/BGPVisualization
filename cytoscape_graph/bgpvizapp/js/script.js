@@ -17,6 +17,61 @@ var cy = cytoscape({
     ],
 });
 
+function addNode(cy, node_data) {
+    const peer_asn = node_data.peer_asn;
+    const path = node_data.path; //path of ASNs
+    const main_node_obj = { id: peer_asn, color: "#90EE90" };
+    if (cy.getElementById(peer_asn).length === 0) {
+      cy.add({
+        data: main_node_obj,
+      });
+    } else {
+      if (node_data.withdrawals) {
+        cy.getElementById(peer_asn).data("color", "#FF0000");
+      } else {
+        cy.getElementById(peer_asn).data("color", "#ADD8E6");
+      }
+    }
+    for (let i = 1; i < path.length; i++) {
+      const target_id = path[i];
+      if (
+        cy.getElementById(target_id).length > 0 &&
+        cy.getElementById(`${peer_asn}_to_${target_id}`).length === 0
+      ) {
+        cy.add({
+          data: {
+            id: `${peer_asn}_to_${target_id}`,
+            source: peer_asn,
+            target: target_id,
+          },
+        });
+      }
+    }
+    // var layout = cy.elements().layout({ name: "circle", animate: true });
+    // layout.run();
+  }
+</script>
+<script>
+  function choose(choices) {
+    var index = Math.floor(Math.random() * choices.length);
+    return choices[index];
+  }
+  var cy = cytoscape({
+    container: document.getElementById("cy"),
+    elements: [],
+    style: [
+      {
+        selector: "node",
+        style: {
+          // shape: "circle",
+          "background-color": "data(color)",
+          label: "data(id)",
+        },
+      },
+    ],
+  });
+</script>
+
 for (var i = 0; i < 10; i++) {
     cy.add({
         data: {
