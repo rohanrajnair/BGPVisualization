@@ -7,21 +7,6 @@ const port = 3000;
 
 app.use(express.static("public"));
 app.get("/", (req, res) => {
-  var cy = cytoscape({
-    container: document.getElementById("cy"),
-    elements: [
-      { data: { id: "a" } },
-      { data: { id: "b" } },
-      { data: { id: "c" } },
-      {
-        data: {
-          id: "ab",
-          source: "a",
-          target: "b",
-        },
-      },
-    ],
-  });
   res.sendFile(path.join(__dirname, "/index.html"));
 });
 
