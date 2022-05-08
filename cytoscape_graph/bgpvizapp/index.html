@@ -4,6 +4,10 @@
   <head>
     <title>BGP Graph Visualizer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.21.1/cytoscape.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <script src="/popper.js"></script>
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
   <script>
     var ws = new WebSocket(
@@ -17,32 +21,41 @@
       },
     };
     var msg_counter = 0;
-    ws.onmessage = function (event) {
-      var message = JSON.parse(event.data);
-      var data = message.data;
-      // console.log("type:" + data.type);
-      // console.log("withdrawals:" + data.withdrawals);
-      if (data.path) {
-        addNode(cy, data);
-      }
-      if (msg_counter % 500 == 0) {
-        var layout = cy.elements().layout({ name: "cose", animate: true });
-        layout.run();
-      }
-      msg_counter++;
-      document.getElementById(
-        "msg_count"
-      ).innerHTML = `Message count: ${msg_counter}`;
-      // console.log(message.type, message.data);
-    };
-    ws.onopen = function () {
-      ws.send(
-        JSON.stringify({
-          type: "ris_subscribe",
-          data: params,
-        })
-      );
-    };
+    openSocket();
+
+    function closeSocket() {
+      ws.close();
+    }
+    function openSocket() {
+      ws.onmessage = function (event) {
+        var message = JSON.parse(event.data);
+        var data = message.data;
+        // console.log("type:" + data.type);
+        // console.log("withdrawals:" + data.withdrawals);
+        if (data.path) {
+          addNode(cy, data);
+        }
+        if (msg_counter % 500 == 0) {
+          var layout = cy.elements().layout({ name: "circle", animate: true });
+          layout.run();
+          updatePoppers(cy);
+        }
+
+        msg_counter++;
+        document.getElementById(
+          "msg_count"
+        ).innerHTML = `Message count: ${msg_counter}`;
+        // console.log(message.type, message.data);
+      };
+      ws.onopen = function () {
+        ws.send(
+          JSON.stringify({
+            type: "ris_subscribe",
+            data: params,
+          })
+        );
+      };
+    }
   </script>
   <style>
     #cy {
@@ -55,8 +68,35 @@
   </style>
 
   <body>
-    <div id="cy"></div>
+    <h1>BGP Data Visualization</h1>
+    <h2 id="msg_count"></h2>
+    <button
+      style="margin: 10px; padding: 10px; background-color: aquamarine"
+      onclick="closeSocket();"
+    >
+      Close connection/Get summary stats
+    </button>
+    <div style="input: disabled" id="cy"></div>
     <script>
+      function updatePoppers(cy) {
+        cy.nodes().forEach((a) => {
+          // let data = "AS " + a._private.data.color.substring(1);
+          const asNum = a._private.data.id;
+          let popper = a.popper({
+            content: () => {
+              let div = document.createElement("div");
+              // div.innerHTML = `AS#${asNum}`;
+              document.body.appendChild(div);
+              return div;
+            },
+          });
+          let update = () => {
+            popper.update();
+          };
+          a.on("position", update);
+          cy.on("pan zoom resize", update);
+        });
+      }
       //adds a node along with all its edges
       function addNode(cy, node_data) {
         const peer_asn = node_data.peer_asn;
@@ -112,7 +152,5 @@
         ],
       });
     </script>
-    <h1>BGP Data Visualization</h1>
-    <h2 id="msg_count"></h2>
   </body>
 </html>
