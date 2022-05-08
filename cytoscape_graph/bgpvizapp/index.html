@@ -2,10 +2,45 @@
 
 <html>
   <head>
-    <title>Tutorial 1: Getting Started</title>
+    <title>BGP Graph Visualizer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.21.1/cytoscape.min.js"></script>
   </head>
-
+  <script>
+    var ws = new WebSocket(
+      "wss://ris-live.ripe.net/v1/ws/" //?client=js-example-1"
+    );
+    var params = {
+      moreSpecific: true,
+      host: "rrc21",
+      socketOptions: {
+        includeRaw: true,
+      },
+    };
+    var msg_counter = 0;
+    ws.onmessage = function (event) {
+      var message = JSON.parse(event.data);
+      var data = message.data;
+      console.log("type:" + data.type);
+      console.log("withdrawals:" + data.withdrawals);
+      if (data.path) {
+        addNode(cy, data);
+      }
+      if (msg_counter % 1 == 0) {
+        var layout = cy.elements().layout({ name: "cose", animate: false });
+        layout.run();
+      }
+      msg_counter++;
+      // console.log(message.type, message.data);
+    };
+    ws.onopen = function () {
+      ws.send(
+        JSON.stringify({
+          type: "ris_subscribe",
+          data: params,
+        })
+      );
+    };
+  </script>
   <style>
     #cy {
       width: 100%;
@@ -19,13 +54,49 @@
   <body>
     <div id="cy"></div>
     <script>
+      //adds a node along with all its edges
+      function addNode(cy, node_data) {
+        const peer_asn = node_data.peer_asn;
+        const path = node_data.path; //path of ASNs
+        const main_node_obj = { id: peer_asn, color: "#90EE90" };
+        if (cy.getElementById(peer_asn).length === 0) {
+          cy.add({
+            data: main_node_obj,
+          });
+        } else {
+          if (node_data.withdrawals) {
+            cy.getElementById(peer_asn).data("color", "#FF0000");
+          } else {
+            cy.getElementById(peer_asn).data("color", "#808080");
+          }
+        }
+        for (let i = 1; i < path.length; i++) {
+          const target_id = path[i];
+          if (
+            cy.getElementById(target_id).length > 0 &&
+            cy.getElementById(`${peer_asn}_to_${target_id}`).length === 0
+          ) {
+            cy.add({
+              data: {
+                id: `${peer_asn}_to_${target_id}`,
+                source: peer_asn,
+                target: target_id,
+              },
+            });
+          }
+        }
+        // var layout = cy.elements().layout({ name: "circle", animate: true });
+        // layout.run();
+      }
+    </script>
+    <script>
       function choose(choices) {
         var index = Math.floor(Math.random() * choices.length);
         return choices[index];
       }
       var cy = cytoscape({
         container: document.getElementById("cy"),
-        elements: [{ data: { id: "a", color: "#87BBEC" } }],
+        elements: [],
         style: [
           {
             selector: "node",
@@ -37,25 +108,6 @@
           },
         ],
       });
-
-      for (var i = 0; i < 10; i++) {
-        cy.add({
-          data: {
-            id: "node" + i,
-            color: choose(["#808080", "#FF0000", "#008000", "#FF69B4"]),
-          },
-        });
-        var source = "node" + i;
-        cy.add({
-          data: {
-            id: "edge" + i,
-            source: source,
-            target: "a",
-          },
-        });
-      }
-      var layout = cy.elements().layout({ name: "cose", animate: true });
-      layout.run();
     </script>
     <h1>BGP Data Visualization</h1>
   </body>
