@@ -13,6 +13,9 @@ argv[5] is the desired prefix?
 argv[6] is the desired peer/AS
 if argv 1 indicates live programming, open up a socket, make argv 3 the desired path?
 Example: main([0,"-l","-nf",2,0,'208.65.152.0/22','3356'])
+Running from command line: -l -nf 2 0 208.65.152.0/22 3356
+If no specific path or AS is desired, list both as 0
+Ex: -l -nf 2 0 0 0
 ```
 
 ### Starting up the Webpage Locally:
