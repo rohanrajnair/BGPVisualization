@@ -29,4 +29,18 @@ def main(argv):
         rislive2.goLive(argv)
     if((argv[1]=="-u")or(argv[1]=="-U")):  #if this happens, we let the user upload a file, maybe implement later
         pass
-main([0, "-l", "-nf", 2, 0, '208.65.152.0/22', '3356'])
+#main([0, "-l", "-nf", 2, 0, '208.65.152.0/22', '3356'])
+"""
+argv[0] is python filename
+argv[1] is live or upload use: "-l" or "-u"
+argv[2] is whether or not they want the data output to a file as well (check live_mode.py) use : "-f" or "-nf"
+argv[3] is the desired update time in seconds
+argv[4] no use yet, was supposed to be desires prefix but I changed stuff
+argv[5] is the desired prefix?
+argv[6] is the desired peer/AS
+if argv 1 indicates live programming, open up a socket, make argv 3 the desired path?
+Example: main([0,"-l","-nf",2,0,'208.65.152.0/22','3356'])
+Running from command line: -l -nf 2 0 208.65.152.0/22 3356
+"""
+if __name__ == "__main__":
+    main(sys.argv[0:])
