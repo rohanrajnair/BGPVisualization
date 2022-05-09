@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>BGP Graph Visualizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.21.1/cytoscape.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <script src="/popper.js"></script>
+    <!-- <script src="/cise.js"></script> -->
+    <link rel="stylesheet" href="/css/main.css" />
+  </head>
+  <script>
+    var ws = new WebSocket(
+      "wss://ris-live.ripe.net/v1/ws/" //?client=js-example-1"
+    );
+    var params = {
+      moreSpecific: true,
+      host: "rrc21",
+      socketOptions: {
+        includeRaw: true,
+      },
+    };
+    var msg_counter = 0;
+    openSocket();
+
+    function closeSocket() {
+      ws.close();
+    }
+    function openSocket() {
+      ws.onmessage = function (event) {
+        var message = JSON.parse(event.data);
+        var data = message.data;
+        // console.log("type:" + data.type);
+        // console.log("withdrawals:" + data.withdrawals);
+        if (data.path) {
+          addNode(cy, data);
+        }
+        if (msg_counter % 100 == 0) {
+          var layout = cy.elements().layout({ name: "circle", animate: true });
+          layout.run();
+          updatePoppers(cy);
+        }
+
+        msg_counter++;
+        document.getElementById(
+          "msg_count"
+        ).innerHTML = `Message count: ${msg_counter}`;
+        // console.log(message.type, message.data);
+      };
+      ws.onopen = function () {
+        ws.send(
+          JSON.stringify({
+            type: "ris_subscribe",
+            data: params,
+          })
+        );
+      };
+    }
+  </script>
+  <style>
+    #cy {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+  </style>
+
+  <body>
+    <div id="cy">
+      <div style="padding: 10px; position: absolute; z-index: 10">
+        <h1>BGP Data Visualization</h1>
+        <h2 style="font-weight: normal" id="msg_count"></h2>
+        <button style="padding: 10px" onclick="closeSocket();">
+          Close connection
+        </button>
+      </div>
+    </div>
+    <script>
+      //this keeps adding poppers...needs to only add them once.
+      function updatePoppers(cy) {
+        cy.nodes().forEach((a) => {
+          //console.log(a);
+          // let data = "AS " + a._private.data.color.substring(1);
+          const asNum = a._private.data.id;
+          if (!document.getElementById(asNum)) {
+            let this_div = document.createElement("div");
+            this_div.setAttribute("id", asNum);
+
+            Promise.all([
+              fetch(
+                "https://stat.ripe.net/data/as-overview/data.json?resource=AS" +
+                  asNum
+              ),
+              fetch(
+                "https://stat.ripe.net/data/rir-stats-country/data.json?resource=AS" +
+                  asNum
+              ),
+              fetch(
+                "https://stat.ripe.net/data/as-path-length/data.json?resource=AS" +
+                  asNum
+              ),
+              fetch(
+                "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS" +
+                  asNum
+              ),
+            ])
+              .then((responses) => {
+                return Promise.all(
+                  responses.map(function (response) {
+                    return response.json();
+                  })
+                );
+              })
+              .then((data) => {
+                let name = data[0].data.holder;
+                let country = data[1].data.located_resources[0].location;
+                let statistics = data[2].data.stats;
+                let apl = statistics.map((a) => a.stripped.avg);
+                apl = apl.sort((a, b) => a - b);
+                mid = Math.floor(apl.length / 2);
+                med_apl =
+                  apl % 2 == 0 ? (apl[mid] + apl[mid + 1]) / 2 : apl[mid];
+
+                /*let ipv4_prefixes = data[3].data.ipv4;
+              let ipv6_prefixes = data[3].data.ipv6;
+
+              let ipv4_prefix_count = ipv4_prefixes.map((a) => a.prefixes).reduce((b, a) => b+a, 0);
+              let ipv6_prefix_count = ipv6_prefixes.map((a) => a.prefixes).reduce((b, a) => b+a, 0);
+              let prefix_count = ipv4_prefix_count + ipv6_prefix_count;*/
+
+                let announced_prefixes = data[3].data.prefixes.length;
+
+                this_div.innerHTML = `
+                <div class=\"wrapper\">
+                  <div class=\"tooltip_info as_name\">AS#${asNum}</div>
+                  <div class=\"tooltip_info\"><span class=\"info_header\">Name:</span> ${name}</div>
+                  <div class=\"tooltip_info\"><span class=\"info_header\">Country:</span> ${country}</div>
+                  <div class=\"tooltip_info\"><span class=\"info_header\">Median Avg. Path Length:</span> ${med_apl.toFixed(
+                    2
+                  )}</div>
+                  <div class=\"tooltip_info\"><span class=\"info_header\">Announced Prefixes:</span> ${announced_prefixes}</div>
+                </div>`;
+              });
+
+            this_div.classList.add("tooltip");
+            /*
+              AS 19028319023
+              Name: ________
+              Country: 
+              Median Average Path Length: 
+            */
+
+            document.body.appendChild(this_div);
+
+            let popper_instance = a.popper({
+              content: this_div,
+            });
+            function show() {
+              console.log("showing");
+              this_div.setAttribute("data-show", "");
+              popper_instance.setOptions((options) => ({
+                ...options,
+                modifiers: [
+                  ...options.modifiers,
+                  { name: "eventListeners", enabled: true },
+                ],
+              }));
+              popper_instance.update();
+            }
+            function hide() {
+              console.log("hiding");
+              this_div.removeAttribute("data-show");
+              popper_instance.setOptions((options) => ({
+                ...options,
+                modifiers: [
+                  ...options.modifiers,
+                  { name: "eventListeners", enabled: false },
+                ],
+              }));
+            }
+            /*show_events = ['mouseenter', 'focus']
+            hide_events = ['mouseleave', 'blur']
+
+            show_events.forEach((event) => {
+              a.addEventListener(event, show);
+            })
+            hide_events.forEach((event) => {
+              a.addEventListener(event, hide);
+            })*/
+            a.bind("mouseover", show);
+            a.bind("mouseout", hide);
+
+            let update = () => {
+              popper_instance.update();
+            };
+            a.on("position", update);
+            cy.on("pan zoom resize", update);
+          }
+        });
+        /*cy.on('mouseover', 'node', function(event) {
+          let node = event.cyTarget;
+          console.log(node);
+        })*/
+      }
+      //adds a node along with all its edges
+      function addNode(cy, node_data) {
+        const peer_asn = node_data.peer_asn;
+        const path = node_data.path; //path of ASNs
+        const main_node_obj = { id: peer_asn, color: "#90EE90" };
+        if (cy.getElementById(peer_asn).length === 0) {
+          cy.add({
+            data: main_node_obj,
+          });
+        } else {
+          if (node_data.withdrawals) {
+            cy.getElementById(peer_asn).data("color", "#FF0000");
+          } else {
+            cy.getElementById(peer_asn).data("color", "#ADD8E6");
+          }
+        }
+        //nodes which are connected either have a direct or indirect path to each other
+        for (let i = 1; i < path.length; i++) {
+          const target_id = path[i];
+          if (
+            cy.getElementById(target_id).length > 0 &&
+            cy.getElementById(`${peer_asn}_to_${target_id}`).length === 0
+          ) {
+            cy.add({
+              data: {
+                id: `${peer_asn}_to_${target_id}`,
+                source: peer_asn,
+                target: target_id,
+              },
+            });
+          }
+        }
+        // var layout = cy.elements().layout({ name: "circle", animate: true });
+        // layout.run();
+      }
+    </script>
+    <script>
+      function choose(choices) {
+        var index = Math.floor(Math.random() * choices.length);
+        return choices[index];
+      }
+      var cy = cytoscape({
+        container: document.getElementById("cy"),
+        elements: [],
+        style: [
+          {
+            selector: "node",
+            style: {
+              // shape: "circle",
+              "background-color": "data(color)",
+              label: "data(id)",
+            },
+          },
+        ],
+      });
+      // cy.use(cise);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+.tooltip {
+    display: none;
+    border-radius: 10px;
+    width:200px;
+    height: auto;
+    background-color: #EEEEEE;
+    border: 2px solid black;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5px;
+}
+.tooltip[data-show] {
+    display: flex;
+}
+.tooltip_info {
+    text-align: center;
+    font: 9pt black;
+}
+.as_name {
+    font: 14pt bold;
+}
+.info_header {
+    font-weight: bold;
+}
+body {
+    background-color: antiquewhite;
+}

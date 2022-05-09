@@ -156,6 +156,7 @@ def setDestPrefix(userPrefix): #sets user specified destination prefix
 def getDestPrefix(): #gets user specified destination prefix
     return globalDest
 
+goLive([0,"-l","-nf",2,0,'208.65.152.0/22','3356'])
 
 #TODO you can ignore this stuff here
 #argv[0] is python filename
