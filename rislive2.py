@@ -39,6 +39,11 @@ def goLive(argv): #this will have to be a function that takes in params passed f
     """
     fileOption = argv[2]
     userPath = str(argv[6])
+    if argv[6]=='0':
+        userPath = '3356'
+    if argv[5]=='0':
+        argv[5] = '208.65.152.0/22'
+
     global globalDest
     globalDest = setDestPrefix(argv[4])
     calledOnce = False
@@ -156,7 +161,7 @@ def setDestPrefix(userPrefix): #sets user specified destination prefix
 def getDestPrefix(): #gets user specified destination prefix
     return globalDest
 
-goLive([0,"-l","-nf",2,0,'208.65.152.0/22','3356'])
+#goLive([0,"-l","-nf",2,0,'208.65.152.0/22','3356'])
 
 #TODO you can ignore this stuff here
 #argv[0] is python filename
