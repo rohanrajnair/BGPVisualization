@@ -1,17 +1,27 @@
 .tooltip {
-    /*display: none;*/
-
-
-        background: #333;
-        color: white;
-        font-weight: bold;
-        padding: 4px 8px;
-        font-size: 13px;
-        border-radius: 4px;
-    
+    display: none;
+    border-radius: 10px;
+    width:200px;
+    height: auto;
+    background-color: #EEEEEE;
+    border: 2px solid black;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5px;
 }
 .tooltip[data-show] {
-    display: block;
+    display: flex;
+}
+.tooltip_info {
+    text-align: center;
+    font: 9pt black;
+}
+.as_name {
+    font: 14pt bold;
+}
+.info_header {
+    font-weight: bold;
 }
 body {
     background-color: antiquewhite;
