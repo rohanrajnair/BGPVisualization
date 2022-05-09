@@ -53,7 +53,7 @@ def goLive(argv): #this will have to be a function that takes in params passed f
     ws.connect("wss://ris-live.ripe.net/v1/ws/?client=py-manual-example")
     ws.send(json.dumps({"type": "ris_subscribe", "data": {"host": "rrc21", "path": userPath}}))
     res = []
-    updateFrequency = argv[3] #give the update freq
+    updateFrequency = int(argv[3]) #give the update freq
 
         #updateFrequency is in seconds, if more than an hour, default to 1 minute
     if (updateFrequency > 3600):
