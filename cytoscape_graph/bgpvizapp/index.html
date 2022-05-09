@@ -74,7 +74,7 @@
         <h1>BGP Data Visualization</h1>
         <h2 style="font-weight: normal" id="msg_count"></h2>
         <button style="padding: 10px" onclick="closeSocket();">
-          Close connection/Get summary stats
+          Close connection
         </button>
       </div>
     </div>
@@ -90,42 +90,61 @@
             this_div.setAttribute("id", asNum);
 
             Promise.all([
-              fetch("https://stat.ripe.net/data/as-overview/data.json?resource=AS" + asNum),
-              fetch("https://stat.ripe.net/data/rir-stats-country/data.json?resource=AS" + asNum),
-              fetch("https://stat.ripe.net/data/as-path-length/data.json?resource=AS" + asNum),
-              fetch("https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS" + asNum),
-            ]).then((responses) => {
-              return Promise.all(responses.map(function (response) {
-                return response.json();
-              }));
-            }).then((data) => {
-              let name = data[0].data.holder;
-              let country = data[1].data.located_resources[0].location;
-              let statistics = data[2].data.stats;
-              let apl = statistics.map((a) => a.stripped.avg);
-              apl = apl.sort((a, b) => a-b);
-              mid = Math.floor(apl.length / 2);
-              med_apl = apl% 2 == 0 ? (apl[mid] + apl[mid+1])/2 : apl[mid];
+              fetch(
+                "https://stat.ripe.net/data/as-overview/data.json?resource=AS" +
+                  asNum
+              ),
+              fetch(
+                "https://stat.ripe.net/data/rir-stats-country/data.json?resource=AS" +
+                  asNum
+              ),
+              fetch(
+                "https://stat.ripe.net/data/as-path-length/data.json?resource=AS" +
+                  asNum
+              ),
+              fetch(
+                "https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS" +
+                  asNum
+              ),
+            ])
+              .then((responses) => {
+                return Promise.all(
+                  responses.map(function (response) {
+                    return response.json();
+                  })
+                );
+              })
+              .then((data) => {
+                let name = data[0].data.holder;
+                let country = data[1].data.located_resources[0].location;
+                let statistics = data[2].data.stats;
+                let apl = statistics.map((a) => a.stripped.avg);
+                apl = apl.sort((a, b) => a - b);
+                mid = Math.floor(apl.length / 2);
+                med_apl =
+                  apl % 2 == 0 ? (apl[mid] + apl[mid + 1]) / 2 : apl[mid];
 
-              /*let ipv4_prefixes = data[3].data.ipv4;
+                /*let ipv4_prefixes = data[3].data.ipv4;
               let ipv6_prefixes = data[3].data.ipv6;
 
               let ipv4_prefix_count = ipv4_prefixes.map((a) => a.prefixes).reduce((b, a) => b+a, 0);
               let ipv6_prefix_count = ipv6_prefixes.map((a) => a.prefixes).reduce((b, a) => b+a, 0);
               let prefix_count = ipv4_prefix_count + ipv6_prefix_count;*/
 
-              let announced_prefixes = data[3].data.prefixes.length;
+                let announced_prefixes = data[3].data.prefixes.length;
 
-              this_div.innerHTML = `
+                this_div.innerHTML = `
                 <div class=\"wrapper\">
                   <div class=\"tooltip_info as_name\">AS#${asNum}</div>
                   <div class=\"tooltip_info\"><span class=\"info_header\">Name:</span> ${name}</div>
                   <div class=\"tooltip_info\"><span class=\"info_header\">Country:</span> ${country}</div>
-                  <div class=\"tooltip_info\"><span class=\"info_header\">Median Avg. Path Length:</span> ${med_apl.toFixed(2)}</div>
+                  <div class=\"tooltip_info\"><span class=\"info_header\">Median Avg. Path Length:</span> ${med_apl.toFixed(
+                    2
+                  )}</div>
                   <div class=\"tooltip_info\"><span class=\"info_header\">Announced Prefixes:</span> ${announced_prefixes}</div>
                 </div>`;
-            });
-            
+              });
+
             this_div.classList.add("tooltip");
             /*
               AS 19028319023
@@ -134,32 +153,31 @@
               Median Average Path Length: 
             */
 
-            
             document.body.appendChild(this_div);
 
             let popper_instance = a.popper({
-              content: this_div
+              content: this_div,
             });
             function show() {
-              console.log("showing")
-              this_div.setAttribute('data-show', '');
+              console.log("showing");
+              this_div.setAttribute("data-show", "");
               popper_instance.setOptions((options) => ({
                 ...options,
                 modifiers: [
                   ...options.modifiers,
-                  { name: 'eventListeners', enabled: true },
+                  { name: "eventListeners", enabled: true },
                 ],
               }));
               popper_instance.update();
             }
             function hide() {
-              console.log("hiding")
-              this_div.removeAttribute('data-show');
+              console.log("hiding");
+              this_div.removeAttribute("data-show");
               popper_instance.setOptions((options) => ({
                 ...options,
                 modifiers: [
                   ...options.modifiers,
-                  { name: 'eventListeners', enabled: false },
+                  { name: "eventListeners", enabled: false },
                 ],
               }));
             }
@@ -172,15 +190,14 @@
             hide_events.forEach((event) => {
               a.addEventListener(event, hide);
             })*/
-            a.bind('mouseover', show);
-            a.bind('mouseout', hide);
+            a.bind("mouseover", show);
+            a.bind("mouseout", hide);
 
             let update = () => {
               popper_instance.update();
             };
             a.on("position", update);
             cy.on("pan zoom resize", update);
-
           }
         });
         /*cy.on('mouseover', 'node', function(event) {
