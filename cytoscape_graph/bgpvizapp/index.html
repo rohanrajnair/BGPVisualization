@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/@popperjs/core@2"></script>
     <script src="https://unpkg.com/tippy.js@6"></script>
     <script src="/popper.js"></script>
+    <!-- <script src="/cise.js"></script> -->
     <link rel="stylesheet" href="/css/main.css" />
   </head>
   <script>
@@ -35,7 +36,7 @@
         if (data.path) {
           addNode(cy, data);
         }
-        if (msg_counter % 500 == 0) {
+        if (msg_counter % 100 == 0) {
           var layout = cy.elements().layout({ name: "circle", animate: true });
           layout.run();
           updatePoppers(cy);
@@ -68,33 +69,37 @@
   </style>
 
   <body>
-    <h1>BGP Data Visualization</h1>
-    <h2 id="msg_count"></h2>
-    <button
-      style="margin: 10px; padding: 10px; background-color: aquamarine"
-      onclick="closeSocket();"
-    >
-      Close connection/Get summary stats
-    </button>
-    <div style="input: disabled" id="cy"></div>
+    <div id="cy">
+      <div style="padding: 10px; position: absolute; z-index: 10">
+        <h1>BGP Data Visualization</h1>
+        <h2 style="font-weight: normal" id="msg_count"></h2>
+        <button style="padding: 10px" onclick="closeSocket();">
+          Close connection/Get summary stats
+        </button>
+      </div>
+    </div>
     <script>
+      //this keeps adding poppers...needs to only add them once.
       function updatePoppers(cy) {
         cy.nodes().forEach((a) => {
           // let data = "AS " + a._private.data.color.substring(1);
           const asNum = a._private.data.id;
-          let popper = a.popper({
-            content: () => {
-              let div = document.createElement("div");
-              // div.innerHTML = `AS#${asNum}`;
-              document.body.appendChild(div);
-              return div;
-            },
-          });
-          let update = () => {
-            popper.update();
-          };
-          a.on("position", update);
-          cy.on("pan zoom resize", update);
+          if (!document.getElementById(asNum)) {
+            let popper = a.popper({
+              content: () => {
+                let div = document.createElement("div");
+                div.setAttribute("id", asNum);
+                div.innerHTML = `AS#${asNum}`;
+                document.body.appendChild(div);
+                return div;
+              },
+            });
+            let update = () => {
+              popper.update();
+            };
+            a.on("position", update);
+            cy.on("pan zoom resize", update);
+          }
         });
       }
       //adds a node along with all its edges
@@ -113,6 +118,7 @@
             cy.getElementById(peer_asn).data("color", "#ADD8E6");
           }
         }
+        //nodes which are connected either have a direct or indirect path to each other
         for (let i = 1; i < path.length; i++) {
           const target_id = path[i];
           if (
@@ -151,6 +157,7 @@
           },
         ],
       });
+      // cy.use(cise);
     </script>
   </body>
 </html>
